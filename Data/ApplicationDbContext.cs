@@ -17,6 +17,7 @@ namespace API_Customer.Data
         }
 
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
     
     }
 }
