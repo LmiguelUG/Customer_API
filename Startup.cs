@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using API_Customer.Data;
 using AutoMapper;
+using API_Customer.Repository;
 
 namespace API_Customer
 {
@@ -35,10 +36,10 @@ namespace API_Customer
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
 
-            IMapper mapper = MappingCofig.RegisterMaps().CreateMapper();
+            IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
             services.AddSingleton(mapper);
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
