@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using API_Customer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace API_Customer.Repository
 {
@@ -14,10 +18,11 @@ namespace API_Customer.Repository
 
     {   
         private readonly ApplicationDbContext _db;
-
-        public UserRepository(ApplicationDbContext db) 
+        private readonly IConfiguration _configuration; 
+        public UserRepository(ApplicationDbContext db, IConfiguration configuration) 
         {
             _db = db;
+            _configuration = configuration;
         }
 
         public async Task<string> Login(string userName, string password)
@@ -34,7 +39,7 @@ namespace API_Customer.Repository
             }
             else
             {
-                return "Ok";
+                return CreateToken(user);
             }
 
 
@@ -95,6 +100,33 @@ namespace API_Customer.Repository
                 }
                 return true;
             }
+        }
+    
+
+        private string CreateToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+               new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+               new Claim(ClaimTypes.Name, user.userName)
+            };
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8
+                            .GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            var credts = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = System.DateTime.Now.AddDays(1),
+                SigningCredentials = credts
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
         }
     }
 }

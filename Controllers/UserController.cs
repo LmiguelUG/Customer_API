@@ -31,18 +31,20 @@ namespace API_Customer.Controllers
         public async Task<ActionResult> Register(UserDto user)
         {
             var response = await _userRepository.Register(
-                new User{
-                    userName = user.userName}, user.password
+                new User
+                {
+                    userName = user.userName
+                }, user.password
             );
 
-            if(response == -1) 
+            if (response == -1)
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = "user alreadists";
                 return BadRequest(_responseDto);
             }
 
-            if(response == -500)
+            if (response == -500)
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = "created user insucceessful";
@@ -55,26 +57,29 @@ namespace API_Customer.Controllers
         }
 
 
-                [HttpPost("Login")]
+        [HttpPost("Login")]
         public async Task<ActionResult> Login(UserDto user)
         {
-            var response = await _userRepository.Login( user.userName , user.password);
+            var response = await _userRepository.Login(user.userName, user.password);
 
-            if(response == "User not found") 
+            if (response == "User not found")
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = response;
                 return BadRequest(_responseDto);
             }
 
-            if(response == "Incorrect password")
+            if (response == "Incorrect password")
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = response;
                 return BadRequest(_responseDto);
             }
 
-            return Ok("logged in user");
+            _responseDto.Result = response;
+            _responseDto.DisplayMessage = "Connected user";
+            return Ok(_responseDto);
+
         }
 
     }
