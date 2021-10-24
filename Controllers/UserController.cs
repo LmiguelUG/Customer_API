@@ -37,14 +37,14 @@ namespace API_Customer.Controllers
                 }, user.password
             );
 
-            if (response == -1)
+            if (response == "Exists")
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = "user alreadists";
                 return BadRequest(_responseDto);
             }
 
-            if (response == -500)
+            if (response == "Error")
             {
                 _responseDto.IsSuccess = false;
                 _responseDto.DisplayMessage = "created user insucceessful";
@@ -52,7 +52,10 @@ namespace API_Customer.Controllers
             }
 
             _responseDto.DisplayMessage = "Created successful";
-            _responseDto.Result = response;
+            JwtPackage objet = new JwtPackage();
+            objet.userName = user.userName;
+            objet.token    = response;
+            _responseDto.Result = objet;
             return Ok(_responseDto);
         }
 
@@ -76,11 +79,20 @@ namespace API_Customer.Controllers
                 return BadRequest(_responseDto);
             }
 
-            _responseDto.Result = response;
+            JwtPackage objet = new JwtPackage();
+            objet.userName = user.userName;
+            objet.token    = response;
+            _responseDto.Result = objet;
             _responseDto.DisplayMessage = "Connected user";
             return Ok(_responseDto);
 
         }
 
+    }
+
+    public class JwtPackage 
+    {
+        public string userName { get; set; }
+        public string token    { get; set; }
     }
 }

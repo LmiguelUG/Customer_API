@@ -45,13 +45,13 @@ namespace API_Customer.Repository
 
         }
 
-        public async Task<int> Register(User user, string password)
+        public async Task<string> Register(User user, string password)
         {
             try
             {   
                 if(await UserExists(user.userName))
                 {
-                    return -1;
+                    return "Exists";
                 }
 
                 EncryptPassword(password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -60,11 +60,11 @@ namespace API_Customer.Repository
 
                 await _db.Users.AddAsync(user);
                 await _db.SaveChangesAsync();
-                return user.Id;
+                return CreateToken(user);
             }
             catch (Exception)
             {
-                return -500;
+                return "Error";
             }
         }
 
